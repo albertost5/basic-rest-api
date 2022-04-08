@@ -1,7 +1,4 @@
 const express = require('express');
-const DefaultController = require('../routes/controllers/default.controller');
-const TestController = require('../routes/controllers/test.controller');
-const registry = require('../commons/registry.controller');
 require('dotenv').config();
 
 class Server {
@@ -22,18 +19,15 @@ class Server {
     }
 
     initializeControllers() {
-
         this.controllers.forEach( controller => {
             this.app.use( '/',  controller.registerRoutes() );
         });
-        console.log(`Registered ${ this.controllers.length } controllers successfully!`);
 
+        console.log(`Registered ${ this.controllers.length } controllers successfully!`);
     }
 
     middlewares() {
-
         this.app.use( express.static('public') );
-
     }
 
     routes() {
@@ -41,11 +35,9 @@ class Server {
     }
 
     listen() {
-
         this.app.listen( this.port, () => {
             console.log(`Example app listening on port ${ this.port }...`)
         });
-        
     }
 
 }
