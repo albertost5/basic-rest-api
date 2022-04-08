@@ -1,25 +1,51 @@
 const express = require('express');
+const DefaultController = require('../routes/controllers/default.controller');
+const TestController = require('../routes/controllers/test.controller');
+const registry = require('../commons/registry.controller');
 require('dotenv').config();
 
 class Server {
-
-    constructor() {
+    
+    constructor(controllers = []) {
+        this.controllers = controllers;
         this.app = express();
         this.port = process.env.PORT || 8080;
+        
+        // Middlewares
+        this.middlewares();
+        
+        // Initialize controllers
+        this.initializeControllers();
 
+        // Routes
         this.routes();
     }
 
-    routes() {
-        this.app.get('/', ( req, res ) => {
-            res.send('Hello World!')
+    initializeControllers() {
+
+        this.controllers.forEach( controller => {
+            this.app.use( '/',  controller.registerRoutes() );
         });
+        console.log(`Registered ${ this.controllers.length } controllers successfully!`);
+
+    }
+
+    middlewares() {
+
+        this.app.use( express.static('public') );
+
+    }
+
+    routes() {
+
     }
 
     listen() {
-        this.app.listen(this.port, () => {
-            console.log(`Example app listening on port ${ this.port }`)
+
+        this.app.listen( this.port, () => {
+            console.log(`Example app listening on port ${ this.port }...`)
         });
+        
     }
 
 }
