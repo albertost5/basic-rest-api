@@ -6,23 +6,30 @@ class DefaultController {
 
     registerRoutes() {
         this.#router.get('/hello-world', (req, res) => {
+
             res.json( 'Hello World!' );
         });
 
         this.#router.get('/queryParam', (req, res) => {
+
+            const { q = "blank" } = req.query;
+
             res.json({
-                data: req.query.q
+                q
             });
         });
 
-        this.#router.get('/pathVariable/:q', (req, res) => {
+        this.#router.get('/pathVariable/:id', (req, res) => {
+
+            const params = req.params;
             res.json({
-                pathVariable: req.params.q
+                id: params.id
             });
         });
 
         this.#router.post('/hello-world', (req, res) => {
-            if( req.body ) {
+            
+            if( Object.keys( req.body ).length > 0 ) {
                 res.json({
                     data: 'POST endpoint.'
                 });
@@ -34,27 +41,13 @@ class DefaultController {
         });
 
         this.#router.put('/hello-world', (req, res) => {
-            if( Object.keys(req.body).length !== 0 ) {
-                res.json({
-                    data: 'PUT endpoint.'
-                });
-            } else {
-                res.status('404').json({
-                    error: 'Should send a request body.'
-                });
-            }
+            res.status(201).json({
+                data: 'OK'
+            })
         });
 
         this.#router.delete('/hello-world', (req, res) => {
-            if( Object.keys(req.body).length !== 0 ) {
-                res.json({
-                    data: 'PUT endpoint.'
-                });
-            } else {
-                res.status('404').json({
-                    error: 'Should send a request body.'
-                });
-            }
+            res.status(201).json('DELETE endpoint')
         });
 
 

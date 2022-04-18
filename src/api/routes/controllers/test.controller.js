@@ -6,7 +6,7 @@ class TestController {
 
     registerRoutes() {
         this.#router.get('/test', (req, res) => {
-            res.json('Response from testController.')
+            res.json('TEST endpoint.')
         });
         
         return this.#router;

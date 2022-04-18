@@ -1,21 +1,19 @@
 const express = require('express');
 require('dotenv').config();
+var cors = require('cors')
 
 class Server {
     
-    constructor(controllers = []) {
+    constructor( controllers = [] ) {
         this.controllers = controllers;
         this.app = express();
-        this.port = process.env.PORT || 8080;
+        this.port = process.env.PORT || 3001;
         
         // Middlewares
         this.middlewares();
         
         // Initialize controllers
         this.initializeControllers();
-
-        // Routes
-        this.routes();
     }
 
     initializeControllers() {
@@ -27,12 +25,9 @@ class Server {
     }
 
     middlewares() {
-        this.app.use( express.static('public') );
+        this.app.use( cors() );
         this.app.use( express.json() ); 
-    }
-
-    routes() {
-
+        this.app.use( express.static('public') );
     }
 
     listen() {
@@ -42,6 +37,5 @@ class Server {
     }
 
 }
-
 
 module.exports = Server;
