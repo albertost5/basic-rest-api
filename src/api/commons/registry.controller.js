@@ -1,8 +1,7 @@
-const DefaultController = require("../routes/controllers/default.controller");
-const TestController = require("../routes/controllers/test.controller");
+const UserController = require("../routes/controllers/user.controller");
 
 
 const registryControllers = new Array();
-registryControllers.push( new DefaultController(), new TestController() );
+registryControllers.push( new UserController() );
 
 module.exports = registryControllers;
