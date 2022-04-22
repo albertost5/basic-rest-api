@@ -1,32 +1,38 @@
 const express = require('express');
 const User = require('../../models/user');
 const customErrorResponse = require('../../../utils/error.util');
-const bcrypt = require('bcrypt');
 const { check } = require('express-validator');
 const { bodyValidation } = require('../../../../middlewares/bodyValidation');
-
+const passwordHash = require('../../../../helpers/passwordHash');
+const { userExists } = require('../../../../helpers/dbValidator');
 
 class UserController {
 
     #router = new express.Router(); 
-    #middlewares = [
+
+    #postMiddlewares = [
         check('name', 'Name field is required!').not().isEmpty(),
         check('email', 'The email is not valid').isEmail(),
-        check('pw', 'The password is required. Ming length: 5.').isLength({ min: 5 }),
+        check('pw', 'The password is required. Min length 5.').isLength({ min: 5 }),
         bodyValidation
     ];
 
+    #putMiddlewares = [
+        check('id', 'Invalid id.').isMongoId(),
+        check('id').custom( userExists ),
+        bodyValidation
+    ]
+
     registerRoutes() {
-        this.#router.post('/users', this.#middlewares, this.__createUser);
-        this.#router.put('/users', this.__updateUser);
+        this.#router.post('/users', this.#postMiddlewares, this.__createUser);
+        this.#router.put('/users', this.#putMiddlewares, this.__updateUser);
 
         return this.#router;
     }
 
-    __createUser = async ( req, res ) => {
+    __createUser = async( req, res ) => {
 
         const { name, email, pw } = req.body
-        const saltRounds = 10;
         
         try {
             // CHECK IF THE EMAIL IS ALREADY IN USE
@@ -36,7 +42,7 @@ class UserController {
             const user = new User({
                 name: name,
                 email: email,
-                password: bcrypt.hashSync(pw, saltRounds)
+                password: passwordHash( pw )
             });
         
             await user.save();
@@ -45,12 +51,24 @@ class UserController {
                 message: `The user with email ${ user.email } was created successfully!`
             });
         } catch (error) {
+            console.log(error);
             return res.status(400).json( customErrorResponse('40000', 'BAD_REQUEST', 'There was a problem saving the user.') );
         }
     }
 
-    __updateUser = async ( req, res ) => {
-        res.json({ data: 'Hello world!' });
+    __updateUser = async( req, res ) => {
+        
+        const { password, id, ...user } = req.body;
+
+        let hash;
+        if( password ) user.password = passwordHash( password );
+        
+        try {
+            const userUpdated = await User.findByIdAndUpdate( id, user );
+            res.json( { message: 'User updated successfully!'} );
+        } catch (error) {
+            return res.status(404).json( customErrorResponse('40400', 'NOT_FOUND', 'There was a problem updating the user.') );
+        }
     }
 }
 
