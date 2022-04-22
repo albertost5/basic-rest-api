@@ -9,7 +9,6 @@ const userExists = async( id ) => {
     } catch (error) {
         throw new Error('There was a problem finding the user by id.');
     }
-
 }
 
 module.exports = {

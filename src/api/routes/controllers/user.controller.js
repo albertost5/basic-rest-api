@@ -2,7 +2,7 @@ const express = require('express');
 const User = require('../../models/user');
 const customErrorResponse = require('../../../utils/error.util');
 const { check } = require('express-validator');
-const { bodyValidation } = require('../../../../middlewares/bodyValidation');
+const { checkErrors } = require('../../../../middlewares/checkErrors');
 const passwordHash = require('../../../../helpers/passwordHash');
 const { userExists } = require('../../../../helpers/dbValidator');
 
@@ -14,13 +14,13 @@ class UserController {
         check('name', 'Name field is required!').not().isEmpty(),
         check('email', 'The email is not valid').isEmail(),
         check('pw', 'The password is required. Min length 5.').isLength({ min: 5 }),
-        bodyValidation
+        checkErrors
     ];
 
     #putMiddlewares = [
         check('id', 'Invalid id.').isMongoId(),
         check('id').custom( userExists ),
-        bodyValidation
+        checkErrors
     ]
 
     registerRoutes() {
@@ -51,7 +51,6 @@ class UserController {
                 message: `The user with email ${ user.email } was created successfully!`
             });
         } catch (error) {
-            console.log(error);
             return res.status(400).json( customErrorResponse('40000', 'BAD_REQUEST', 'There was a problem saving the user.') );
         }
     }
