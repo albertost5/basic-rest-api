@@ -10,24 +10,29 @@ const user = require('../../models/user');
 class UserController {
 
     #router = new express.Router(); 
-
+    #path = '/users';
     #postMiddlewares = [
         check('name', 'Name field is required!').not().isEmpty(),
         check('email', 'The email is not valid').isEmail(),
         check('pw', 'The password is required. Min length 5.').isLength({ min: 5 }),
         checkErrors
     ];
-
     #putMiddlewares = [
+        check('id', 'Invalid id.').isMongoId(),
+        check('id').custom( userExists ),
+        checkErrors
+    ]
+    #deleteMiddlewares = [
         check('id', 'Invalid id.').isMongoId(),
         check('id').custom( userExists ),
         checkErrors
     ]
 
     registerRoutes() {
-        this.#router.get('/users', this.__getUsers);
-        this.#router.post('/users', this.#postMiddlewares, this.__createUser);
-        this.#router.put('/users', this.#putMiddlewares, this.__updateUser);
+        this.#router.get( this.#path, this.__getUsers );
+        this.#router.post( this.#path, this.#postMiddlewares, this.__createUser );
+        this.#router.put( this.#path, this.#putMiddlewares, this.__updateUser );
+        this.#router.delete( this.#path, this.#deleteMiddlewares, this.__deleteUser );
 
         return this.#router;
     }
@@ -101,6 +106,20 @@ class UserController {
         } catch (error) {
             return res.status(400).json( customErrorResponse('40003', 'BAD_REQUEST', 'There was a problem to fetch the data of the users.'))
         }
+    }
+
+    __deleteUser = async( req, res ) => {
+        const { id } = req.query;
+
+        try {
+            const user = await User.findByIdAndUpdate(id, {status: false});
+            res.json({
+                message: `User ${ id } was removed successfully!`
+            });
+        } catch (error) {
+            res.status().json( customErrorResponse('40400', 'NOT_FOUND', 'There was a problem removing the user from the database.') );
+        }
+
     }
 }
 
