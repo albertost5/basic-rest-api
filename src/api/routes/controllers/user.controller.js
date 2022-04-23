@@ -5,6 +5,7 @@ const { check } = require('express-validator');
 const { checkErrors } = require('../../../../middlewares/checkErrors');
 const passwordHash = require('../../../../helpers/passwordHash');
 const { userExists } = require('../../../../helpers/dbValidator');
+const user = require('../../models/user');
 
 class UserController {
 
@@ -24,6 +25,7 @@ class UserController {
     ]
 
     registerRoutes() {
+        this.#router.get('/users', this.__getUsers);
         this.#router.post('/users', this.#postMiddlewares, this.__createUser);
         this.#router.put('/users', this.#putMiddlewares, this.__updateUser);
 
@@ -67,6 +69,37 @@ class UserController {
             res.json( { message: 'User updated successfully!'} );
         } catch (error) {
             return res.status(404).json( customErrorResponse('40400', 'NOT_FOUND', 'There was a problem updating the user.') );
+        }
+    }
+
+    __getUsers = async( req, res ) => {
+
+        const { limit = 5, from = 0 } = req.query;
+
+        const query = { status: true};
+
+        try {
+            const [ users, total ] = await Promise.all([
+                User.find( query ).limit( parseInt(limit) ).skip( parseInt(from) ),
+                User.countDocuments( query )
+            ]);
+
+            let usersRes = new Array();
+    
+            for( let user of users ) {
+                usersRes.push({
+                    name: user.name,
+                    email: user.email
+                })
+            }
+    
+            res.json({ 
+                total,
+                users: usersRes 
+            });
+
+        } catch (error) {
+            return res.status(400).json( customErrorResponse('40003', 'BAD_REQUEST', 'There was a problem to fetch the data of the users.'))
         }
     }
 }
