@@ -5,7 +5,6 @@ const { check } = require('express-validator');
 const { checkErrors } = require('../../../../middlewares/checkErrors');
 const passwordHash = require('../../../../helpers/passwordHash');
 const { userExists } = require('../../../../helpers/dbValidator');
-const user = require('../../models/user');
 
 class UserController {
 
