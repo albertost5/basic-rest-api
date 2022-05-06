@@ -5,4 +5,11 @@ const passwordHash = ( password ) => {
     return bcrypt.hashSync( password, saltRounds );
 }
 
-module.exports = passwordHash;
+const comparePasswordHash = ( password, hash ) => {
+    return bcrypt.compareSync( password, hash );
+}
+
+module.exports = {
+    passwordHash,
+    comparePasswordHash
+};

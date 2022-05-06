@@ -3,35 +3,36 @@ const User = require('../../models/user');
 const customErrorResponse = require('../../../utils/error.util');
 const { check } = require('express-validator');
 const { checkErrors } = require('../../../../middlewares/checkErrors');
-const passwordHash = require('../../../../helpers/passwordHash');
+const { passwordHash } = require('../../../../helpers/passwordHash');
 const { userExists } = require('../../../../helpers/dbValidator');
 
 class UserController {
 
     #router = new express.Router(); 
-    #path = '/users';
+    #basePath = '/users';
+
     #postMiddlewares = [
         check('name', 'Name field is required!').not().isEmpty(),
         check('email', 'The email is not valid').isEmail(),
-        check('pw', 'The password is required. Min length 5.').isLength({ min: 5 }),
+        check('pw', 'The password is required. Min length 5').isLength({ min: 5 }),
         checkErrors
     ];
     #putMiddlewares = [
         check('id', 'Invalid id.').isMongoId(),
         check('id').custom( userExists ),
         checkErrors
-    ]
+    ];
     #deleteMiddlewares = [
         check('id', 'Invalid id.').isMongoId(),
         check('id').custom( userExists ),
         checkErrors
-    ]
+    ];
 
     registerRoutes() {
-        this.#router.get( this.#path, this.__getUsers );
-        this.#router.post( this.#path, this.#postMiddlewares, this.__createUser );
-        this.#router.put( this.#path, this.#putMiddlewares, this.__updateUser );
-        this.#router.delete( this.#path, this.#deleteMiddlewares, this.__deleteUser );
+        this.#router.get( this.#basePath, this.__getUsers );
+        this.#router.post( this.#basePath, this.#postMiddlewares, this.__createUser );
+        this.#router.put( this.#basePath, this.#putMiddlewares, this.__updateUser );
+        this.#router.delete( this.#basePath, this.#deleteMiddlewares, this.__deleteUser );
 
         return this.#router;
     }
@@ -65,7 +66,6 @@ class UserController {
         
         const { password, id, ...user } = req.body;
 
-        let hash;
         if( password ) user.password = passwordHash( password );
         
         try {
