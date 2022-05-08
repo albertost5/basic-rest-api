@@ -5,6 +5,7 @@ const customErrorResponse = require('../../../utils/error.util');
 const User = require("../../models/user");
 const { comparePasswordHash } = require("../../../../helpers/passwordHash");
 const { generateJWT } = require('../../../../helpers/generateJWT');
+const { checkUserStatus } = require('../../../../helpers/checkStatus');
 require('dotenv').config();
 
 class AuthController {
@@ -33,35 +34,28 @@ class AuthController {
 
             if ( !user ) return res.status(400).json( customErrorResponse('40401', 'NOT_FOUND', 'User not found.') );
 
-            if ( user.status ) {
+            checkUserStatus( user );
 
-                if ( comparePasswordHash( pw, user.password ) ) {
-                    const JWT = await generateJWT( user._id );
-                    
-                    return res.json({
-                        user,
-                        JWT
-                    });
-                } else {
-                    return res.status(404).json( customErrorResponse('40000', 'BAD_REQUEST', 'Incorrect password.') );
-                }
-                
+            if ( comparePasswordHash( pw, user.password ) ) {
+                const JWT = await generateJWT( user.id );
+
+                return res.json({
+                    user,
+                    token: JWT
+                });
             } else {
-                return res.status(404).json( customErrorResponse('40400', 'NOT_FOUND', 'User inactive.') );
+                return res.status(404).json( customErrorResponse('40000', 'BAD_REQUEST', 'Incorrect password.') );
             }
             
         } catch (error) {
-            console.log(error);
+            if(error.code) {
+                const statusCode = parseInt( error.code.slice(0,3) );
+                return res.status( statusCode ).json( error );
+            }
             return res.status(500).json({
                 error: 'Something went wrong!'
             });
         }
-
-        res.json({
-            email,
-            pw,
-            message: 'User logged successfully!'
-        });
     }
  
 }

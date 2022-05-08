@@ -2,7 +2,10 @@ const express = require('express');
 const User = require('../../models/user');
 const customErrorResponse = require('../../../utils/error.util');
 const { check } = require('express-validator');
+// middlewares
 const { checkErrors } = require('../../../../middlewares/checkErrors');
+const { validateJWT } = require('../../../../middlewares/validateJWT');
+// helpers
 const { passwordHash } = require('../../../../helpers/passwordHash');
 const { userExists } = require('../../../../helpers/dbValidator');
 
@@ -23,6 +26,7 @@ class UserController {
         checkErrors
     ];
     #deleteMiddlewares = [
+        validateJWT,
         check('id', 'Invalid id.').isMongoId(),
         check('id').custom( userExists ),
         checkErrors
@@ -109,11 +113,12 @@ class UserController {
 
     __deleteUser = async( req, res ) => {
         const { id } = req.query;
-
+        
         try {
             const user = await User.findByIdAndUpdate(id, {status: false});
             res.json({
-                message: `User ${ id } was removed successfully!`
+                message: `User ${ id } was removed successfully!`,
+                userLogged: req.user
             });
         } catch (error) {
             res.status().json( customErrorResponse('40400', 'NOT_FOUND', 'There was a problem removing the user from the database.') );
