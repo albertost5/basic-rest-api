@@ -4,7 +4,7 @@ const { checkErrors } = require('../../../../middlewares/checkErrors');
 const customErrorResponse = require('../../../utils/error.util');
 const User = require("../../models/user");
 const { comparePasswordHash } = require("../../../../helpers/passwordHash");
-const jwt = require('jsonwebtoken');
+const { generateJWT } = require('../../../../helpers/generateJWT');
 require('dotenv').config();
 
 class AuthController {
@@ -36,9 +36,12 @@ class AuthController {
             if ( user.status ) {
 
                 if ( comparePasswordHash( pw, user.password ) ) {
-                    const token = jwt.sign( req.body, process.env.SECRET, { algorithm: 'HS512', expiresIn: '1h' });
+                    const JWT = await generateJWT( user._id );
                     
-                    return res.json({ token });
+                    return res.json({
+                        user,
+                        JWT
+                    });
                 } else {
                     return res.status(404).json( customErrorResponse('40000', 'BAD_REQUEST', 'Incorrect password.') );
                 }
