@@ -3,11 +3,12 @@ const User = require('../../models/user');
 const customErrorResponse = require('../../../utils/error.util');
 const { check } = require('express-validator');
 // middlewares
-const { checkErrors } = require('../../../../middlewares/checkErrors');
-const { validateJWT } = require('../../../../middlewares/validateJWT');
+const { checkErrors } = require('../../../../middlewares/check-errors');
+const { validateJWT } = require('../../../../middlewares/validate-jwt');
 // helpers
-const { passwordHash } = require('../../../../helpers/passwordHash');
-const { userExists } = require('../../../../helpers/dbValidator');
+const { passwordHash } = require('../../../../helpers/password-hash');
+const { userExists } = require('../../../../helpers/db-validator');
+const { checkAdminRole } = require('../../../../middlewares/check-admin');
 
 class UserController {
 
@@ -27,6 +28,7 @@ class UserController {
     ];
     #deleteMiddlewares = [
         validateJWT,
+        checkAdminRole,
         check('id', 'Invalid id.').isMongoId(),
         check('id').custom( userExists ),
         checkErrors

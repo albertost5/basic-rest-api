@@ -1,11 +1,11 @@
 const express = require('express');
 const { check } = require('express-validator');
-const { checkErrors } = require('../../../../middlewares/checkErrors');
+const { checkErrors } = require('../../../../middlewares/check-errors');
 const customErrorResponse = require('../../../utils/error.util');
 const User = require("../../models/user");
-const { comparePasswordHash } = require("../../../../helpers/passwordHash");
-const { generateJWT } = require('../../../../helpers/generateJWT');
-const { checkUserStatus } = require('../../../../helpers/checkStatus');
+const { comparePasswordHash } = require("../../../../helpers/password-hash");
+const { generateJWT } = require('../../../../helpers/generate-jwt');
+const { checkUserStatus } = require('../../../../helpers/check-status');
 require('dotenv').config();
 
 class AuthController {

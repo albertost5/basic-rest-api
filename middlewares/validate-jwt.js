@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const customErrorResponse = require('../src/utils/error.util');
 const User = require('../src/api/models/user');
-const { checkUserStatus } = require('../helpers/checkStatus');
+const { checkUserStatus } = require('../helpers/check-status');
 
 const validateJWT = async(req, res, next) => {
 
