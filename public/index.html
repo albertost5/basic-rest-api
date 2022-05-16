@@ -30,11 +30,11 @@
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <script>
-        console.log( window.location.hostname );
+        console.log(window.location.hostname);
 
-        let url = window.location.hostname.includes( 'localhost' ) 
-                    ? 'http://localhost:3000/auth/google'
-                    : 'https://rest-api-node-albertost5.herokuapp.com/'
+        let url = window.location.hostname.includes('localhost') ?
+            'http://localhost:3000/auth/google' :
+            'https://rest-api-node-albertost5.herokuapp.com/auth/google'
 
         function handleCredentialResponse(response) {
             // GOOGLE TOKEN: ID_TOKEN
@@ -44,7 +44,7 @@
                 google_token: response.credential
             }
 
-            fetch( url, {
+            fetch(url, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
