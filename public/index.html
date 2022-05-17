@@ -60,13 +60,18 @@
         }
 
         const signOutBtn = document.getElementById('g_id_signout');
-        signOutBtn.onclick = () => {
-            console.log('g => ', google.accounts.id);
-            google.accounts.id.disableAutoSelect();
-            google.accounts.id.revoke(localStorage.getItem('email'), done => {
-                localStorage.clear();
-                location.reload();
-            })
+        const EMAIL = localStorage.getItem('email');
+
+        if (EMAIL) {
+
+            signOutBtn.onclick = () => {
+                console.log('g_id => ', google.accounts.id);
+                google.accounts.id.disableAutoSelect();
+                google.accounts.id.revoke(localStorage.getItem('email'), done => {
+                    localStorage.clear();
+                    location.reload();
+                })
+            }
         }
     </script>
 </body>
