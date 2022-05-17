@@ -64,7 +64,7 @@ class UserController {
                 message: `The user with email ${ user.email } was created successfully!`
             });
         } catch (error) {
-            return res.status(400).json( customErrorResponse('40000', 'BAD_REQUEST', 'There was a problem saving the user.') );
+            return res.status(409).json( customErrorResponse('40900', 'CONFLICT', 'There was a problem creating the user.') );
         }
     }
 
