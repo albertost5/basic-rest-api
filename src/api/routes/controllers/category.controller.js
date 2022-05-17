@@ -15,7 +15,7 @@ class CategoryController {
         validateJWT,
         check('name', 'Name field is required!').not().isEmpty(),
         checkErrors
-    ]
+    ];
     
     registerRoutes() {
         this.#router.get( this.#basePath, this.__getCategories );
@@ -27,8 +27,27 @@ class CategoryController {
         return this.#router;
     }
 
-    __getCategories = ( req, res ) => {
-        res.json('GET ALL CATEGORIES');
+    __getCategories = async( req, res ) => {
+
+        const { from = 0, limit = 5 } = req.query;
+
+        const QUERY = { status: true };
+        const FROM_PARSED = from ? parseInt( from ) : 0;
+        const LIMIT_PARSED = limit ? parseInt( limit ) : 100;
+
+        try {
+            const categories = await Category.find( QUERY ).populate('user','name').limit( parseInt(limit) ).skip( parseInt(from) );
+            const count = await Category.find( QUERY ).limit( LIMIT_PARSED ).skip( FROM_PARSED ).countDocuments();
+            
+            return res.json({
+                total: count,
+                categories
+            });
+            
+        } catch (error) {
+            console.log(error);
+            return res.status(404).json( customErrorResponse("40400", "NOT_FOUND", "There was a problem retrieving all the categories.") );
+        }
     }
 
     __getCategoryById = ( req, res ) => {
@@ -61,17 +80,12 @@ class CategoryController {
                     user: USER_ID
                 });
     
-                return res.status(201).json({
-                    id: category.id,
-                    name: category.name,
-                    status: category.status
-                });
+                return res.status(201).json( category );
+                
             } catch (error) {
-                console.log('error create => ', error);
                 return res.status(409).json( customErrorResponse('40900', 'CONFLICT', 'There was a problem creating the category.') );
             }
         } catch (error) {
-            console.log('error findOne => ', error);
             return res.status(404).json( customErrorResponse('40400', 'NOT_FOUND', 'There was a finding the category.') );
         }
     }

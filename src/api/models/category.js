@@ -18,4 +18,11 @@ const categorySchema = new Schema({
     }
 });
 
+categorySchema.methods.toJSON = function() {
+    const { __v, _id, status, user, ...category } = this.toObject();
+    category.id = _id;
+    category.user = user.name;
+    return category;
+}
+
 module.exports = model( 'Category', categorySchema );
