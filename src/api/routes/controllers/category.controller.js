@@ -1,28 +1,51 @@
 const express = require('express');
+const { check } = require('express-validator');
+require('dotenv').config();
+
+const Category = require('../../models/category');
+
 const { checkErrors } = require('../../../../middlewares/check-errors');
 const { validateJWT } = require('../../../../middlewares/validate-jwt');
-const { check } = require('express-validator');
+const { checkCategoryExists } = require('../../../../middlewares/check-category');
+
 const customErrorResponse = require('../../../utils/error.util');
-const Category = require('../../models/category');
-require('dotenv').config();
+const { allowed } = require('../../../../helpers/check-allowed');
 
 class CategoryController {
 
     #router = new express.Router();
     #basePath = '/categories';
 
+    #getMiddlewares = [
+        check('id', 'Invalid id.').isMongoId(),
+        checkCategoryExists,
+        checkErrors
+    ];
     #postMiddlewares = [
         validateJWT,
         check('name', 'Name field is required!').not().isEmpty(),
         checkErrors
     ];
+    #putMiddlewares = [
+        validateJWT,
+        check('id', 'Invalid id.').isMongoId(),
+        check('name', 'Name field is required!').not().isEmpty(),
+        checkCategoryExists,
+        checkErrors
+    ];
+    #deleteMiddlewares = [
+        validateJWT,
+        check('id', 'Invalid id.').isMongoId(),
+        checkCategoryExists,
+        checkErrors
+    ];
     
     registerRoutes() {
         this.#router.get( this.#basePath, this.__getCategories );
-        this.#router.get( this.#basePath + '/:id', this.__getCategoryById );
+        this.#router.get( this.#basePath + '/:id', this.#getMiddlewares, this.__getCategoryById );
         this.#router.post( this.#basePath, this.#postMiddlewares, this.__createCategory );
-        this.#router.put( this.#basePath + '/:id', this.__updateCategory );
-        this.#router.delete( this.#basePath + '/:id', this.__deleteCategory );
+        this.#router.put( this.#basePath + '/:id', this.#putMiddlewares, this.__updateCategory );
+        this.#router.delete( this.#basePath + '/:id', this.#deleteMiddlewares, this.__deleteCategory );
 
         return this.#router;
     }
@@ -45,15 +68,13 @@ class CategoryController {
             });
             
         } catch (error) {
-            console.log(error);
             return res.status(404).json( customErrorResponse("40400", "NOT_FOUND", "There was a problem retrieving all the categories.") );
         }
     }
 
     __getCategoryById = ( req, res ) => {
-        res.json({
-            id: req.params.id
-        });
+
+        return res.json( req.category )
     }
     
     __createCategory = async( req, res ) => {
@@ -90,17 +111,54 @@ class CategoryController {
         }
     }
 
-    __updateCategory = ( req, res ) => {
-        res.json({
-            id: req.params.id,
-            body: req.body
-        })
+    __updateCategory = async( req, res ) => {
+        
+        const { id } = req.params;
+        const upperCaseName = req.body?.name.toUpperCase();
+        const userLogged = req.user;
+        const reqCategory = req.category;
+        
+        try {
+
+            if ( req.category.name == upperCaseName ) return res.status(400).json( customErrorResponse("40000", "BAD_REQUEST", "The category name already exists") );
+
+            if( !allowed( userLogged, reqCategory ) ) return res.status(403).json( customErrorResponse("40300", "FORBIDDEN", "To update a category has to be owner or admin") );
+
+            try {
+                const categoryUpdated = await Category.findByIdAndUpdate( id, { name: upperCaseName }, { new: true } );
+
+                return res.json({
+                    message: 'OK!',
+                    category: categoryUpdated
+                });
+            } catch (error) {
+                return res.status(400).json( customErrorResponse("40000", "BAD_REQUEST", "There was a problem updating the category") );
+            }
+
+        } catch (error) {
+            return res.status(404).json( customErrorResponse("40400", "NOT_FOUND", "There was an error finding the category") );
+        }
     }
 
-    __deleteCategory = ( req, res ) => {
-        res.json({
-            message: `Deteled category with id ${req.params.id}..`
-        })
+    __deleteCategory = async( req, res ) => {
+        
+        const { id } = req.params
+        const category = req.category;
+        const userLogged = req.user;
+
+        if( !category.status ) return res.status(409).json( customErrorResponse("40900", "CONFLICT", "The category is already deleted.") );
+
+        if( !allowed( userLogged, category ) ) return res.status(403).json( customErrorResponse("40300", "FORBIDDEN", "To update a category has to be owner or admin") );
+        
+        try {
+            await Category.findByIdAndUpdate( id, { status: false } );
+
+            return res.json({
+                message: `The category with id ${ id } has been deleted.`
+            });
+        } catch (error) {
+            return res.status(404).json( customErrorResponse("40400", "NOT_FOUND", "There was a problem deleting the category") );
+        }
     }
 }
 

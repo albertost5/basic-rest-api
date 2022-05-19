@@ -8,11 +8,12 @@ const checkErrors = ( req, res, next ) => {
     
     if ( !errors.isEmpty() ) {
         // console.log('Errs: ', errors.errors);
-
         let messages = []; 
         errors.errors.forEach( err => {
-            messages.push( err.msg );
+            const errorMessage = err.msg?.code ? err.msg.message : err.msg;
+            messages.push( errorMessage );
         });
+
         return res.status(400).json( customErrorResponse( '40002', 'BAD_REQUEST', messages.toString() ));
     }
     
