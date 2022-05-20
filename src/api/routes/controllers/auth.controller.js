@@ -2,8 +2,8 @@ const express = require('express');
 const { check } = require('express-validator');
 const { checkErrors } = require('../../../../middlewares/check-errors');
 const { customErrorResponse } = require('../../../utils/error.util');
-const User = require("../../models/user");
-const { comparePasswordHash } = require("../../../../helpers/password-hash");
+const User = require('../../models/user');
+const { comparePasswordHash } = require('../../../../helpers/password-hash');
 const { generateJWT } = require('../../../../helpers/generate-jwt');
 const { checkUserStatus } = require('../../../../helpers/checks');
 const { googleVerify } = require('../../../../helpers/google-verify');
@@ -90,12 +90,12 @@ class AuthController {
                 } catch (error) {
                     console.log('user save error => ', error);
                     return res.status(400).json( 
-                        customErrorResponse("40001", "BAD_REQUEST", "There was a problem to create the user using google sign-in.")
+                        customErrorResponse('40001', 'BAD_REQUEST', 'There was a problem to create the user using google sign-in.')
                     );
                 }
             } else if ( user.status === false ) {
                 return res.status(400).json(
-                    customErrorResponse("40100", "UNAUTHORIZED", "The user is inactive.")
+                    customErrorResponse('40100', 'UNAUTHORIZED', 'The user is inactive.')
                 );
             } else {
                 try {
@@ -106,7 +106,7 @@ class AuthController {
                     });           
                 } catch (error) {
                     return res.status(500).json(
-                        customErrorResponse("50000", "INTERNAL_SERVER_ERROR", "Something went wrong generating the auth token.")
+                        customErrorResponse('50000', 'INTERNAL_SERVER_ERROR', 'Something went wrong generating the auth token.')
                     )
                 }
             }
@@ -114,7 +114,7 @@ class AuthController {
         } catch (error) {
             console.log('Google token error: ', error);
             return res.status(400).json(
-                customErrorResponse("40000", "BAD_REQUEST", "There was a problem to validate the google token.")
+                customErrorResponse('40000', 'BAD_REQUEST', 'There was a problem to validate the google token.')
             )
         }
     }

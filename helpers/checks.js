@@ -5,7 +5,7 @@ const checkUserStatus = ( user ) => {
 }
 
 const checkAllowed = ( user, category ) => {
-    return (user.id == category.user.id || user.role === 'ADMIN_ROLE' )
+    return ( user.id == category.user.id || user.role === 'ADMIN_ROLE' )
 }
 
 module.exports = {

@@ -77,14 +77,13 @@ class UserController {
         
         try {
             const userUpdated = await User.findByIdAndUpdate( id, user , { new: true } );
-            const bresponse = getBaseResponse();
 
             res.json({ 
                 message: 'User updated successfully!',
                 user: userUpdated
             });
         } catch (error) {
-            return res.status(404).json( customErrorResponse('40400', 'NOT_FOUND', 'There was a problem updating the user.') );
+            return res.status(404).json( customErrorResponse('40403', 'NOT_FOUND', 'There was a problem updating the user.') );
         }
     }
 

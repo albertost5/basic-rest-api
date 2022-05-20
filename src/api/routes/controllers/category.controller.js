@@ -6,10 +6,11 @@ const Category = require('../../models/category');
 
 const { checkErrors } = require('../../../../middlewares/check-errors');
 const { validateJWT } = require('../../../../middlewares/validate-jwt');
-const { checkCategoryExists } = require('../../../../middlewares/check-category');
+const { categoryExists } = require('../../../../helpers/db-validator');
+const { checkAllowed } = require('../../../../helpers/checks');
 
 const { customErrorResponse } = require('../../../utils/error.util');
-const { checkAllowed } = require('../../../../helpers/checks');
+
 
 class CategoryController {
 
@@ -18,7 +19,7 @@ class CategoryController {
 
     #getMiddlewares = [
         check('id', 'Invalid id.').isMongoId(),
-        checkCategoryExists,
+        check('id').custom( categoryExists ),
         checkErrors
     ];
     #postMiddlewares = [
@@ -30,13 +31,13 @@ class CategoryController {
         validateJWT,
         check('id', 'Invalid id.').isMongoId(),
         check('name', 'Name field is required!').not().isEmpty(),
-        checkCategoryExists,
+        check('id').custom( categoryExists ),
         checkErrors
     ];
     #deleteMiddlewares = [
         validateJWT,
         check('id', 'Invalid id.').isMongoId(),
-        checkCategoryExists,
+        check('id').custom( categoryExists ),
         checkErrors
     ];
     
@@ -68,13 +69,20 @@ class CategoryController {
             });
             
         } catch (error) {
-            return res.status(404).json( customErrorResponse("40400", "NOT_FOUND", "There was a problem retrieving all the categories.") );
+            return res.status(404).json( customErrorResponse('40400', 'NOT_FOUND', 'There was a problem retrieving all the categories.') );
         }
     }
 
-    __getCategoryById = ( req, res ) => {
+    __getCategoryById = async( req, res ) => {
+        
+        const { id } = req.params;
+        try {
+            const category = await Category.findById( id ).populate( 'user', 'name' );
+            return res.json( category )
+        } catch (error) {
+            return res.status(404).json( customErrorResponse( '40401', 'NOT_FOUND', 'There was an error finding the category.' ));
+        }
 
-        return res.json( req.category )
     }
     
     __createCategory = async( req, res ) => {
@@ -116,48 +124,53 @@ class CategoryController {
         const { id } = req.params;
         const upperCaseName = req.body?.name.toUpperCase();
         const userLogged = req.user;
-        const reqCategory = req.category;
         
         try {
+            const category = await Category.findById( id ).populate( 'user', ['name', 'id'] );
 
-            if ( req.category.name == upperCaseName ) return res.status(400).json( customErrorResponse("40000", "BAD_REQUEST", "The category name already exists") );
+            if ( category.name == upperCaseName ) return res.status(400).json( customErrorResponse('40000', 'BAD_REQUEST', 'The category name already exists') );
 
-            if( !checkAllowed( userLogged, reqCategory ) ) return res.status(403).json( customErrorResponse("40300", "FORBIDDEN", "To update a category has to be owner or admin") );
+            if( !checkAllowed( userLogged, category ) ) return res.status(403).json( customErrorResponse('40300', 'FORBIDDEN', 'To update a category has to be owner or admin') );
 
             try {
                 const categoryUpdated = await Category.findByIdAndUpdate( id, { name: upperCaseName }, { new: true } );
 
                 return res.json({
-                    message: 'OK!',
+                    message: 'The category was updated successfully!',
                     category: categoryUpdated
                 });
             } catch (error) {
-                return res.status(400).json( customErrorResponse("40001", "BAD_REQUEST", "There was a problem updating the category") );
+                return res.status(400).json( customErrorResponse('40001', 'BAD_REQUEST', 'There was a problem updating the category') );
             }
 
         } catch (error) {
-            return res.status(404).json( customErrorResponse("40400", "NOT_FOUND", "There was an error finding the category") );
+            return res.status(404).json( customErrorResponse('40403', 'NOT_FOUND', 'There was an error finding the category') );
         }
     }
 
     __deleteCategory = async( req, res ) => {
         
         const { id } = req.params
-        const category = req.category;
         const userLogged = req.user;
 
-        if( !category.status ) return res.status(409).json( customErrorResponse("40900", "CONFLICT", "The category is already deleted.") );
-
-        if( !checkAllowed( userLogged, category ) ) return res.status(403).json( customErrorResponse("40300", "FORBIDDEN", "To update a category has to be owner or admin") );
-        
         try {
-            await Category.findByIdAndUpdate( id, { status: false } );
-
-            return res.json({
-                message: `The category with id ${ id } has been deleted.`
-            });
+            const category = await Category.findById( id ).populate( 'user', 'id' );
+            
+            if( !category.status ) return res.status(409).json( customErrorResponse('40900', 'CONFLICT', 'The category is already deleted.') );
+    
+            if( !checkAllowed( userLogged, category ) ) return res.status(403).json( customErrorResponse('40300', 'FORBIDDEN', 'To update a category has to be owner or admin') );
+            
+            try {
+                await Category.findByIdAndUpdate( id, { status: false } );
+    
+                return res.json({
+                    message: `The category with id ${ id } has been deleted.`
+                });
+            } catch (error) {
+                return res.status(404).json( customErrorResponse('40400', 'NOT_FOUND', 'There was a problem deleting the category') );
+            }
         } catch (error) {
-            return res.status(404).json( customErrorResponse("40400", "NOT_FOUND", "There was a problem deleting the category") );
+            return res.status(404).json( customErrorResponse('40403', 'NOT_FOUND', 'There was an error finding the category') );
         }
     }
 }
