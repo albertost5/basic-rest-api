@@ -8,4 +8,6 @@ function getBaseResponse() {
     return response;
 }
 
-module.exports = getBaseResponse
+module.exports = { 
+    getBaseResponse
+}

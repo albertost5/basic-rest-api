@@ -1,11 +1,11 @@
 const express = require('express');
 const { check } = require('express-validator');
 const { checkErrors } = require('../../../../middlewares/check-errors');
-const customErrorResponse = require('../../../utils/error.util');
+const { customErrorResponse } = require('../../../utils/error.util');
 const User = require("../../models/user");
 const { comparePasswordHash } = require("../../../../helpers/password-hash");
 const { generateJWT } = require('../../../../helpers/generate-jwt');
-const { checkUserStatus } = require('../../../../helpers/check-status');
+const { checkUserStatus } = require('../../../../helpers/checks');
 const { googleVerify } = require('../../../../helpers/google-verify');
 require('dotenv').config();
 

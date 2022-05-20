@@ -1,5 +1,5 @@
 const Category = require('../src/api/models/category');
-const customErrorResponse = require('../src/utils/error.util');
+const { customErrorResponse } = require('../src/utils/error.util');
 
 
 const checkCategoryExists = async( req, res, next ) => {

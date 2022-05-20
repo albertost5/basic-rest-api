@@ -8,8 +8,8 @@ const { checkErrors } = require('../../../../middlewares/check-errors');
 const { validateJWT } = require('../../../../middlewares/validate-jwt');
 const { checkCategoryExists } = require('../../../../middlewares/check-category');
 
-const customErrorResponse = require('../../../utils/error.util');
-const { allowed } = require('../../../../helpers/check-allowed');
+const { customErrorResponse } = require('../../../utils/error.util');
+const { checkAllowed } = require('../../../../helpers/checks');
 
 class CategoryController {
 
@@ -122,7 +122,7 @@ class CategoryController {
 
             if ( req.category.name == upperCaseName ) return res.status(400).json( customErrorResponse("40000", "BAD_REQUEST", "The category name already exists") );
 
-            if( !allowed( userLogged, reqCategory ) ) return res.status(403).json( customErrorResponse("40300", "FORBIDDEN", "To update a category has to be owner or admin") );
+            if( !checkAllowed( userLogged, reqCategory ) ) return res.status(403).json( customErrorResponse("40300", "FORBIDDEN", "To update a category has to be owner or admin") );
 
             try {
                 const categoryUpdated = await Category.findByIdAndUpdate( id, { name: upperCaseName }, { new: true } );
@@ -148,7 +148,7 @@ class CategoryController {
 
         if( !category.status ) return res.status(409).json( customErrorResponse("40900", "CONFLICT", "The category is already deleted.") );
 
-        if( !allowed( userLogged, category ) ) return res.status(403).json( customErrorResponse("40300", "FORBIDDEN", "To update a category has to be owner or admin") );
+        if( !checkAllowed( userLogged, category ) ) return res.status(403).json( customErrorResponse("40300", "FORBIDDEN", "To update a category has to be owner or admin") );
         
         try {
             await Category.findByIdAndUpdate( id, { status: false } );

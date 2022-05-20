@@ -1,4 +1,4 @@
-const customErrorResponse = require("../src/utils/error.util");
+const { customErrorResponse } = require("../src/utils/error.util");
 
 const checkAdminRole = ( req, res, next ) => {
     const { role } = req.user;

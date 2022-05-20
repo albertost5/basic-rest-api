@@ -1,6 +1,6 @@
 const express = require('express');
 const User = require('../../models/user');
-const customErrorResponse = require('../../../utils/error.util');
+const { customErrorResponse } = require('../../../utils/error.util');
 const getBaseResponse = require('../../../utils/response.util');
 const { check } = require('express-validator');
 // middlewares

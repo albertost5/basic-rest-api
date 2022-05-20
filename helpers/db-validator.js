@@ -1,5 +1,5 @@
 const User = require('../src/api/models/user');
-const customErrorResponse = require('../src/utils/error.util');
+const { customErrorResponse } = require('../src/utils/error.util');
 
 const userExists = async( id ) => { 
     

@@ -6,4 +6,6 @@ function customErrorResponse( code, title, message ) {
     }
 }
 
-module.exports = customErrorResponse;
+module.exports = {
+    customErrorResponse
+}
