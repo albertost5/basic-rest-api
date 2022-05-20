@@ -1,6 +1,7 @@
 const express = require('express');
 const User = require('../../models/user');
 const customErrorResponse = require('../../../utils/error.util');
+const getBaseResponse = require('../../../utils/response.util');
 const { check } = require('express-validator');
 // middlewares
 const { checkErrors } = require('../../../../middlewares/check-errors');
@@ -75,8 +76,13 @@ class UserController {
         if( password ) user.password = passwordHash( password );
         
         try {
-            const userUpdated = await User.findByIdAndUpdate( id, user );
-            res.json( { message: 'User updated successfully!'} );
+            const userUpdated = await User.findByIdAndUpdate( id, user , { new: true } );
+            const bresponse = getBaseResponse();
+
+            res.json({ 
+                message: 'User updated successfully!',
+                user: userUpdated
+            });
         } catch (error) {
             return res.status(404).json( customErrorResponse('40400', 'NOT_FOUND', 'There was a problem updating the user.') );
         }

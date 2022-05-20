@@ -88,9 +88,9 @@ class CategoryController {
 
             if( categoryDB ) {
                 if( !categoryDB.status ) {
-                    return res.status(400).json( customErrorResponse('40001', 'BAD_REQUEST', `The category ${ name } is inactive.`) );
+                    return res.status(400).json( customErrorResponse('40002', 'BAD_REQUEST', `The category ${ name } is inactive.`) );
                 } else {
-                    return res.status(400).json( customErrorResponse('40000', 'BAD_REQUEST', `The category ${ name } already exists.`) );
+                    return res.status(400).json( customErrorResponse('40001', 'BAD_REQUEST', `The category ${ name } already exists.`) );
                 }
             }
 
@@ -132,7 +132,7 @@ class CategoryController {
                     category: categoryUpdated
                 });
             } catch (error) {
-                return res.status(400).json( customErrorResponse("40000", "BAD_REQUEST", "There was a problem updating the category") );
+                return res.status(400).json( customErrorResponse("40001", "BAD_REQUEST", "There was a problem updating the category") );
             }
 
         } catch (error) {

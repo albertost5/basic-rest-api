@@ -50,7 +50,7 @@ class AuthController {
                     token: JWT
                 });
             } else {
-                return res.status(404).json( customErrorResponse('40000', 'BAD_REQUEST', 'Incorrect password.') );
+                return res.status(404).json( customErrorResponse('40001', 'BAD_REQUEST', 'Incorrect password.') );
             }
             
         } catch (error) {
