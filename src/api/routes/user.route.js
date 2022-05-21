@@ -6,7 +6,7 @@ const { validateJWT } = require('../../../middlewares/validate-jwt');
 // helpers
 const { userExists } = require('../../../helpers/db-validator');
 const { checkAdminRole } = require('../../../middlewares/check-admin');
-const { createUser, getUsers, updateUser, deleteUser } = require('../routes/controllers/user.controller');
+const { createUser, getUsers, updateUser, deleteUser } = require('./controllers/user.controller');
 
 class UserRoute {
 
