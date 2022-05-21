@@ -5,8 +5,8 @@ const dbConnection = require('../../../db/config');
 
 class Server {
     
-    constructor( controllers = [] ) {
-        this.controllers = controllers;
+    constructor( routes = [] ) {
+        this.routes = routes;
         this.app = express();
         this.port = process.env.PORT || 3001;
         
@@ -21,11 +21,11 @@ class Server {
     }
 
     initializeControllers() {
-        this.controllers.forEach( controller => {
-            this.app.use( '/',  controller.registerRoutes() );
+        this.routes.forEach( routes => {
+            this.app.use( '/',  routes.registerRoutes() );
         });
 
-        console.log(`Registered ${ this.controllers.length } controllers successfully!`);
+        console.log(`Registered ${ this.routes.length } routes successfully!`);
     }
 
     middlewares() {
@@ -40,7 +40,7 @@ class Server {
 
     listen() {
         this.app.listen( this.port, () => {
-            console.log(`Example app listening on port ${ this.port }...`)
+            console.log(`Basic-rest-api listening on port ${ this.port }...`)
         });
     }
 
