@@ -33,9 +33,7 @@ login = async( req, res ) => {
             const statusCode = parseInt( error.code.slice(0,3) );
             return res.status( statusCode ).json( error );
         }
-        return res.status(500).json({
-            error: 'Something went wrong!'
-        });
+        return res.status(500).json( customErrorResponse('50000', 'INTERNAL_SERVER_ERROR', 'Something went wrong') );
     }
 }
 

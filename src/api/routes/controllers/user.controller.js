@@ -2,6 +2,7 @@ const User = require('../../models/user');
 const { customErrorResponse } = require('../../../utils/error.util');
 // helpers
 const { passwordHash } = require('../../../../helpers/password-hash');
+const { checkAdminOrLoggedUser } = require('../../../../helpers/checks');
 
 
 createUser = async( req, res ) => {
@@ -32,27 +33,31 @@ createUser = async( req, res ) => {
 updateUser = async( req, res ) => {
     
     const { password, id, ...user } = req.body;
-
     // Hash the password before to update it in the DB
     if( password ) user.password = passwordHash( password );
-    
-    try {
-        const userUpdated = await User.findByIdAndUpdate( id, user , { new: true } );
 
-        res.json({ 
-            message: 'User updated successfully!',
-            user: userUpdated
-        });
+    try {
+        const user = await User.findById( id );
+        if ( !checkAdminOrLoggedUser( user, req.user ) ) return res.status(403).json( customErrorResponse('40300', 'FORBIDDEN', 'Only admin or owner users are allowed to perform this action.') );
+        try {
+            const userUpdated = await User.findByIdAndUpdate( id, user , { new: true } );
+    
+            res.json({ 
+                message: 'User updated successfully!',
+                user: userUpdated
+            });
+        } catch (error) {
+            return res.status(404).json( customErrorResponse('40900', 'CONFLICT ', 'There was a problem updating the user.') );
+        }
     } catch (error) {
-        console.log(error);
-        return res.status(404).json( customErrorResponse('40403', 'NOT_FOUND', 'There was a problem updating the user.') );
+        return res.status(404).json( customErrorResponse('40403', 'NOT_FOUND', 'There was a problem finding the user.') )
     }
+    
 }
 
 getUsers = async( req, res ) => {
 
     const { limit = 5, from = 0 } = req.query;
-
     const query = { status: true};
 
     try {
@@ -76,7 +81,7 @@ getUsers = async( req, res ) => {
         });
 
     } catch (error) {
-        return res.status(400).json( customErrorResponse('40003', 'BAD_REQUEST', 'There was a problem to fetch the data of the users.'))
+        return res.status(400).json( customErrorResponse('40003', 'BAD_REQUEST', 'There was a problem to fetch the data of the users.') );
     }
 }
 
@@ -84,7 +89,7 @@ deleteUser = async( req, res ) => {
     const { id } = req.query;
     
     try {
-        const user = await User.findByIdAndUpdate(id, {status: false});
+        await User.findByIdAndUpdate( id, {status: false} );
         res.json({
             message: `The user with id ${ id } was removed successfully!`,
             userLogged: req.user

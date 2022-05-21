@@ -20,6 +20,7 @@ class UserRoute {
         checkErrors
     ];
     #putMiddlewares = [
+        validateJWT,
         check('id', 'Invalid id.').isMongoId(),
         check('id').custom( userExists ),
         checkErrors
