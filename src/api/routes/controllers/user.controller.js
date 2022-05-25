@@ -3,6 +3,8 @@ const { customErrorResponse } = require('../../../utils/error.util');
 // helpers
 const { passwordHash } = require('../../../../helpers/password-hash');
 const { checkAdminOrLoggedUser } = require('../../../../helpers/checks');
+const { sendResponse } = require('../../../utils/response.util');
+const { userServiceCreateRes, userServiceUpdateRes, userServiceAllUsersRes, userServiceDeleteRes } = require('../services/user.service');
 
 
 createUser = async( req, res ) => {
@@ -21,10 +23,10 @@ createUser = async( req, res ) => {
         });
     
         await user.save();
+        const response = userServiceCreateRes( user );
 
-        res.status(201).json({
-            message: `The user with email ${ user.email } was created successfully!`
-        });
+        return sendResponse( req, res, response );
+
     } catch (error) {
         return res.status(409).json( customErrorResponse('40900', 'CONFLICT', 'There was a problem creating the user.') );
     }
@@ -37,22 +39,20 @@ updateUser = async( req, res ) => {
     if( password ) user.password = passwordHash( password );
 
     try {
-        const user = await User.findById( id );
-        if ( !checkAdminOrLoggedUser( user, req.user ) ) return res.status(403).json( customErrorResponse('40300', 'FORBIDDEN', 'Only admin or owner users are allowed to perform this action.') );
+        const userToModify = await User.findById( id );
+
+        if ( !checkAdminOrLoggedUser( userToModify, req.user ) ) return res.status(403).json( customErrorResponse('40300', 'FORBIDDEN', 'Only admin or owner users are allowed to perform this action.') );
+        
         try {
-            const userUpdated = await User.findByIdAndUpdate( id, user , { new: true } );
-    
-            res.json({ 
-                message: 'User updated successfully!',
-                user: userUpdated
-            });
+            const userUpdated = await User.findByIdAndUpdate( { _id: id }, user , { new: true } );
+            return sendResponse( req, res, userServiceUpdateRes( userUpdated ) );
         } catch (error) {
             return res.status(404).json( customErrorResponse('40900', 'CONFLICT ', 'There was a problem updating the user.') );
         }
+
     } catch (error) {
         return res.status(404).json( customErrorResponse('40403', 'NOT_FOUND', 'There was a problem finding the user.') )
     }
-    
 }
 
 getUsers = async( req, res ) => {
@@ -75,10 +75,7 @@ getUsers = async( req, res ) => {
             })
         }
 
-        res.json({ 
-            total: users.length,
-            users: usersRes 
-        });
+        return sendResponse( req, res, userServiceAllUsersRes( users.length, usersRes) );
 
     } catch (error) {
         return res.status(400).json( customErrorResponse('40003', 'BAD_REQUEST', 'There was a problem to fetch the data of the users.') );
@@ -90,12 +87,9 @@ deleteUser = async( req, res ) => {
     
     try {
         await User.findByIdAndUpdate( id, {status: false} );
-        res.json({
-            message: `The user with id ${ id } was removed successfully!`,
-            userLogged: req.user
-        });
+        return sendResponse( req, res, userServiceDeleteRes( id, req.user ) );
     } catch (error) {
-        res.status().json( customErrorResponse('40400', 'NOT_FOUND', 'There was a problem removing the user from the database.') );
+        res.status(404).json( customErrorResponse('40400', 'NOT_FOUND', 'There was a problem removing the user from the database.') );
     }
 }
 
