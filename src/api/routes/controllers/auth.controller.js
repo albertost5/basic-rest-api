@@ -4,6 +4,8 @@ const { generateJWT } = require('../../../../helpers/generate-jwt');
 const { checkUserStatus } = require('../../../../helpers/checks');
 const { googleVerify } = require('../../../../helpers/google-verify');
 const { customErrorResponse } = require('../../../utils/error.util');
+const { sendResponse } = require('../../../utils/response.util');
+const { authServiceLogin, authServiceGoogle } = require('../services/auth.service');
 
 
 login = async( req, res ) => {
@@ -20,10 +22,7 @@ login = async( req, res ) => {
         if ( comparePasswordHash( pw, user.password ) ) {
             const JWT = await generateJWT( user.id );
 
-            return res.json({
-                user,
-                token: JWT
-            });
+            return sendResponse( req, res, authServiceLogin( user, JWT ) );
         } else {
             return res.status(404).json( customErrorResponse('40001', 'BAD_REQUEST', 'Incorrect password.') );
         }
@@ -57,11 +56,8 @@ googleSignIn = async( req, res ) => {
             user = new User( DATA_FROM_GOOGLE );
             try {
                 await user.save();
-                res.json( 
-                    user
-                );
+                return sendResponse( req, res, authServiceGoogle(user) );
             } catch (error) {
-                console.log('user save error => ', error);
                 return res.status(400).json( 
                     customErrorResponse('40001', 'BAD_REQUEST', 'There was a problem to create the user using google sign-in.')
                 );
@@ -73,10 +69,8 @@ googleSignIn = async( req, res ) => {
         } else {
             try {
                 const JWT = await generateJWT( user.id );
-                return res.json({
-                    user,
-                    token: JWT
-                });           
+
+                return sendResponse( req, res, authServiceLogin(user, JWT) ); 
             } catch (error) {
                 return res.status(500).json(
                     customErrorResponse('50000', 'INTERNAL_SERVER_ERROR', 'Something went wrong generating the auth token.')
