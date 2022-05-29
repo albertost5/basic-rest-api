@@ -3,7 +3,7 @@ const { check } = require('express-validator');
 const { categoryExists, productExists } = require('../../../helpers/db-validator');
 const { checkErrors } = require('../../../middlewares/check-errors');
 const { validateJWT } = require('../../../middlewares/validate-jwt');
-const { createProduct, getProducts, getProductById, updateProduct } = require('./controllers/product.controller');
+const { createProduct, getProducts, getProductById, updateProduct, deleteProduct } = require('./controllers/product.controller');
 
 class ProductRoute {
     #router = new express.Router();
@@ -31,7 +31,10 @@ class ProductRoute {
     ];
 
     #deleteMiddleware = [
-
+        validateJWT,
+        check('id', 'Invalid id').isMongoId(),
+        check('id').custom( productExists ),
+        checkErrors
     ];
     
     registerRoutes() {
@@ -39,7 +42,7 @@ class ProductRoute {
         this.#router.get( this.#basePath + '/:id', this.#getMiddlewares, getProductById );
         this.#router.post( this.#basePath, this.#postMiddlewares, createProduct );
         this.#router.put( this.#basePath + '/:id', this.#putMiddleware, updateProduct );
-        this.#router.delete( this.#basePath + '/:id' );
+        this.#router.delete( this.#basePath + '/:id', this.#deleteMiddleware, deleteProduct );
 
         return this.#router;
     }

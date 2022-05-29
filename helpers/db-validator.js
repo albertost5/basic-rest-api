@@ -37,7 +37,7 @@ const categoryExists = async( id ) => {
 const productExists = async( id ) => {
     try {
         const product = await Product.findById( id ).exec();
-
+        
         if( !product ) {
             throw customErrorResponse('40402', 'NOT_FOUND', `The product with id, ${ id }, doesn't exist.`);
         } else if ( !product.status ) {

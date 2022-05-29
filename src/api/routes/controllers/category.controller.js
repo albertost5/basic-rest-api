@@ -103,8 +103,6 @@ deleteCategory = async( req, res ) => {
 
     try {
         const category = await Category.findById( id ).populate( 'user', 'id' );
-        
-        if( !category.status ) return res.status(409).json( customErrorResponse('40900', 'CONFLICT', 'The category is already deleted.') );
 
         if( !checkAllowed( userLogged, category ) ) return res.status(403).json( customErrorResponse('40300', 'FORBIDDEN', 'To update a category has to be owner or admin') );
         

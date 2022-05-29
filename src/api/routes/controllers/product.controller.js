@@ -2,9 +2,8 @@ const Product = require('../../models/product');
 const { checkAllowed, checkProductBody } = require('../../../../helpers/checks');
 const { customErrorResponse } = require('../../../utils/error.util');
 const { sendResponse } = require('../../../utils/response.util');
-const { productServiceOneProduct, productServiceAllProducts, productServiceUpdate } = require('../services/product.service');
+const { productServiceOneProduct, productServiceAllProducts, productServiceUpdate, productServiceDelete } = require('../services/product.service');
 const { productExists, categoryExists } = require('../../../../helpers/db-validator');
-const { json } = require('express/lib/response');
 
 
 createProduct = async( req, res ) => {
@@ -110,10 +109,33 @@ updateProduct = async( req, res ) => {
     }
 }
 
+deleteProduct = async( req, res ) => {
+    
+    const { id } = req.params
+    const userLogged = req.user;
+
+    try {
+        const product = await Product.findById( id ).populate( 'user', 'id' );
+
+        if( !checkAllowed( userLogged, product ) ) return res.status(403).json( customErrorResponse('40300', 'FORBIDDEN', 'To update a category has to be owner or admin') );
+        
+        try {
+            await Product.findByIdAndUpdate( id, { status: false } );
+
+            return sendResponse( req, res, productServiceDelete( id ) );
+        } catch (error) {
+            return res.status(404).json( customErrorResponse('40400', 'NOT_FOUND', 'There was a problem deleting the category') );
+        }
+    } catch (error) {
+        return res.status(404).json( customErrorResponse('40403', 'NOT_FOUND', 'There was an error finding the category') );
+    }
+}
+
 
 module.exports = {
     createProduct,
     getProducts,
     getProductById,
-    updateProduct
+    updateProduct, 
+    deleteProduct
 };
