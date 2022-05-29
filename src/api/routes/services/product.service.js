@@ -43,5 +43,8 @@ function productServiceDelete( productId ) {
 }
 
 module.exports = {
-    productServiceOneProduct
+    productServiceOneProduct,
+    productServiceAllProducts,
+    productServiceUpdate,
+    productServiceDelete
 }
