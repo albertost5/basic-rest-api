@@ -1,50 +1,47 @@
 const { getBaseResponse } = require("../../../utils/response.util")
 
-function categoryServiceAllCategories( nCategories, categories ) {
+function productServiceAllProducts( nProducts, products ) {
     const baseResponse = getBaseResponse();
     baseResponse.contentType = 'application/json';
     baseResponse.data = {
-        total: nCategories,
-        categories
+        total: nProducts,
+        products
     }
 
     return baseResponse;
 }
 
-function categoryServiceOneCategory( category ) {
+function productServiceOneProduct( product ) {
     const baseResponse = getBaseResponse();
     baseResponse.contentType = 'application/json';
     baseResponse.data = {
-        category
+        product
     }
 
     return baseResponse;
 }
 
-function categoryServiceUpdate( category ) {
+function productServiceUpdate( product ) {
     const baseResponse = getBaseResponse();
     baseResponse.contentType = 'application/json';
     baseResponse.data = {
-        message: `The category with id ${ category.id } was updated successfully!`,
-        category
+        message: `The product with id ${ product.id } was updated successfully!`,
+        product
     }
 
     return baseResponse;
 }
 
-function categoryServiceDelete( categoryId ) {
+function productServiceDelete( productId ) {
     const baseResponse = getBaseResponse();
     baseResponse.contentType = 'application/json';
     baseResponse.data = {
-        message: `The category with id ${ categoryId } was deleted successfully!`,
+        message: `The product with id ${ productId } was deleted successfully!`,
     }
 
     return baseResponse;
 }
 
 module.exports = {
-    categoryServiceAllCategories,
-    categoryServiceOneCategory,
-    categoryServiceUpdate,
-    categoryServiceDelete
+    productServiceOneProduct
 }

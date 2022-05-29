@@ -2,7 +2,7 @@ const Category = require('../../models/category');
 const { checkAllowed } = require('../../../../helpers/checks');
 const { customErrorResponse } = require('../../../utils/error.util');
 const { sendResponse } = require('../../../utils/response.util');
-const { categoryServiceAllCategories, categoryServiceOneCategory, categoryServiceCategoryUpdated, categoryServiceDelete } = require('../services/category.service');
+const { categoryServiceAllCategories, categoryServiceOneCategory, categoryServiceUpdate, categoryServiceDelete } = require('../services/category.service');
 
 
 getCategories = async( req, res ) => {
@@ -65,7 +65,7 @@ createCategory = async( req, res ) => {
             return res.status(409).json( customErrorResponse('40900', 'CONFLICT', 'There was a problem creating the category.') );
         }
     } catch (error) {
-        return res.status(404).json( customErrorResponse('40400', 'NOT_FOUND', 'There was a finding the category.') );
+        return res.status(404).json( customErrorResponse('40400', 'NOT_FOUND', 'There was a problem finding the category.') );
     }
 }
 
@@ -85,7 +85,7 @@ updateCategory = async( req, res ) => {
         try {
             const categoryUpdated = await Category.findByIdAndUpdate( id, { name: upperCaseName }, { new: true } );
 
-            return sendResponse( req, res, categoryServiceCategoryUpdated(categoryUpdated) );
+            return sendResponse( req, res, categoryServiceUpdate(categoryUpdated) );
         } catch (error) {
             console.log(error);
             return res.status(400).json( customErrorResponse('40001', 'BAD_REQUEST', 'There was a problem updating the category') );
