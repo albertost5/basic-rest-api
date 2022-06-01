@@ -87,7 +87,7 @@ const findByCategories = async( item ) => {
 
     if ( isValidMongoId ) {
         try {
-            const category = await Category.findById( item ).exec();
+            const category = await Category.findById( item ).populate( 'user', 'name' ).exec();
             if( !category ) throw customErrorResponse( '40403', 'NOT_FOUND', 'There was a problem finding the user by id.' );
 
             return category;
@@ -107,7 +107,7 @@ const findByCategories = async( item ) => {
             $and: [
                 { status: true }
             ]
-        });
+        }).populate('user', 'name');
 
         if( !categories ) throw customErrorResponse( '40401', 'NOT_FOUND', 'There was a problem finding the user by id.' );
         
@@ -123,7 +123,7 @@ const findByProducts = async( item ) => {
 
     if ( isValidMongoId ) {
         try {
-            const product = await Product.findById( item ).exec();
+            const product = await Product.findById( item ).populate( 'user', 'name' ).populate( 'category', 'name' ).exec();
 
             if( !product ) throw customErrorResponse( '40403', 'NOT_FOUND', 'There was a problem finding the category by id.' );
 
@@ -147,7 +147,7 @@ const findByProducts = async( item ) => {
             $and: [
                 { status: true }
             ]
-        });
+        }).populate( 'user', 'name' ).populate( 'category', 'name' );
 
         if( !products ) throw customErrorResponse( '40401', 'NOT_FOUND', 'There was a problem finding the product by id.' );
         
