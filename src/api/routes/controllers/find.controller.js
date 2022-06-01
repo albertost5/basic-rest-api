@@ -141,8 +141,7 @@ const findByProducts = async( item ) => {
         const products = await Product.find({
             $or: [
                 { name: regExp },
-                { description: regExp },
-                { price: item }
+                { description: regExp }
             ],
             $and: [
                 { status: true }
