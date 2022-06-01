@@ -4,10 +4,36 @@ function findServiceUserResponse( item ) {
     const baseResponse = getBaseResponse();
     baseResponse.contentType = 'application/json';
     
-    if ( Array.isArray( item ) ) {
+    if ( Array.isArray( item ) && item.length > 1 ) {
         baseResponse.data.users = item
     } else {
-        baseResponse.data.user = item 
+        baseResponse.data.user = item
+    }
+
+    return baseResponse;
+}
+
+function findServiceCategoryResponse( item ) {
+    const baseResponse = getBaseResponse();
+    baseResponse.contentType = 'application/json';
+    
+    if ( Array.isArray( item ) && item.length > 1 ) {
+        baseResponse.data.categories = item
+    } else {
+        baseResponse.data.category = item 
+    }
+
+    return baseResponse;
+}
+
+function findServiceProductsResponse( item ) {
+    const baseResponse = getBaseResponse();
+    baseResponse.contentType = 'application/json';
+
+    if ( Array.isArray( item ) && item.length > 1 ) {
+        baseResponse.data.products = item
+    } else {
+        baseResponse.data.product = item 
     }
 
     return baseResponse;
@@ -15,5 +41,7 @@ function findServiceUserResponse( item ) {
 
 
 module.exports = {
-    findServiceUserResponse
+    findServiceUserResponse,
+    findServiceCategoryResponse,
+    findServiceProductsResponse
 }
