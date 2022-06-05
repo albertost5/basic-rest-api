@@ -1,6 +1,5 @@
 const express = require('express');
-const { check } = require('express-validator');
-const { loadFile } = require('./controllers/upload.controller');
+const { uploadFile } = require('./controllers/upload.controller');
 
 
 class UploadRoute {
@@ -11,10 +10,10 @@ class UploadRoute {
     #postMiddlewares = [
 
     ];
-
+    
 
     registerRoutes() {
-        this.#router.post( this.#basePath, loadFile );
+        this.#router.post( this.#basePath, uploadFile );
 
         return this.#router;
     }
