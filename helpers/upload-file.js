@@ -3,7 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 const { imgExtsAllowed } = require('../src/api/routes/types/extensions');
 const { customErrorResponse } = require('../src/utils/error.util');
 
-const uploadFileHelper = ( reqFiles,  extsAllowedArr = imgExtsAllowed, folderName = '' ) => {
+const uploadFileHelper = ( reqFiles,  fileExtsAllowedArr = imgExtsAllowed, folderName = '' ) => {
 
     return new Promise( ( resolve, reject )  => {
 
@@ -14,9 +14,9 @@ const uploadFileHelper = ( reqFiles,  extsAllowedArr = imgExtsAllowed, folderNam
         const fileArr = reqFiles.file.name.split('.');
         const FILE_EXTENSION = fileArr[ fileArr.length - 1 ].toLowerCase();
         
-        if ( !extsAllowedArr.includes( FILE_EXTENSION ) ) {
+        if ( !fileExtsAllowedArr.includes( FILE_EXTENSION ) ) {
             return reject( 
-                customErrorResponse('40000', 'BAD_REQUEST', `The extension file is not allowed. Extensions allowed: ${ extsAllowedArr }.`) 
+                customErrorResponse('40000', 'BAD_REQUEST', `The extension file is not allowed. Extensions allowed: ${ fileExtsAllowedArr }.`) 
             );
         }
 

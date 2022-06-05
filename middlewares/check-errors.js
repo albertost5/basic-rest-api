@@ -8,7 +8,7 @@ const checkErrors = ( req, res, next ) => {
  
     if ( !errors.isEmpty() ) {
         const error = errors.errors[0];
-        console.log(error);
+        console.log('checkErrors => ', error);
         
         const message = error.msg?.code ? error.msg.message : error.msg;
         const status = error.msg?.code ? error.msg.code.substring(0, 3) : 400;

@@ -11,10 +11,6 @@ const findBy = async( req, res ) => {
 
     const { collection, term } = req.params;
 
-    if( !collectionsAllowed.includes( collection ) ) {
-        return res.status(400).json( customErrorResponse('40000', 'BAD_REQUEST', `${ collection }, is not a valid collection.`) );
-    }
-
     try {
         let response;
 
@@ -38,7 +34,6 @@ const findBy = async( req, res ) => {
 
         return sendResponse( req, res, response );
     } catch (error) {
-        console.log(error);
         return res.status( error.code.slice(0, 3) ).json( error );
     }
 }

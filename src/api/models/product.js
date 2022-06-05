@@ -29,6 +29,9 @@ const productSchema = new Schema({
     stock: {
         type: Boolean,
         default: true
+    },
+    img: {
+        type: String
     }
 });
 

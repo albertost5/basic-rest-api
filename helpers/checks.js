@@ -1,3 +1,4 @@
+const { collectionsAllowed } = require("../src/api/routes/types/collections");
 const { customErrorResponse } = require("../src/utils/error.util");
 
 const checkUserStatus = ( user ) => {
@@ -41,9 +42,19 @@ const checkProductBody = ( requestBody, product ) => {
     return DATA;
 }
 
+const checkCollections = ( collectionName, collectionsArrAllowed = collectionsAllowed ) => {
+
+    if ( !collectionsArrAllowed.includes( collectionName ) ) {
+        throw customErrorResponse('40000', 'BAD_REQUEST', `Collection name not allowed. Allowed: ${ collectionsArrAllowed }`);
+    }
+    
+    return true;
+}
+
 module.exports = {
     checkUserStatus,
     checkAllowed,
     checkAdminOrLoggedUser,
-    checkProductBody
+    checkProductBody, 
+    checkCollections
 }
