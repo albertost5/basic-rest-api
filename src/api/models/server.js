@@ -2,6 +2,7 @@ const express = require('express');
 require('dotenv').config();
 var cors = require('cors');
 const dbConnection = require('../../../db/config');
+const fileUpload = require('express-fileupload');
 
 class Server {
     
@@ -32,6 +33,12 @@ class Server {
         this.app.use( cors() );
         this.app.use( express.json() ); 
         this.app.use( express.static('public') );
+        // Load files
+        this.app.use( fileUpload({
+                useTempFiles : true,
+                tempFileDir : '/tmp/'
+            }) 
+        );
     }
 
     async dbConn() {
