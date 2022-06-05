@@ -1,6 +1,7 @@
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const { imgExtsAllowed } = require('../src/api/routes/types/extensions');
+const { customErrorResponse } = require('../src/utils/error.util');
 
 const uploadFileHelper = ( reqFiles,  extsAllowedArr = imgExtsAllowed, folderName = '' ) => {
 
@@ -23,7 +24,7 @@ const uploadFileHelper = ( reqFiles,  extsAllowedArr = imgExtsAllowed, folderNam
         const tempFileName = uuidv4() + '.' + FILE_EXTENSION;
 
         // Set the path to store the file
-        let uploadPath = path.join( __dirname, '../uploads/', folderName, tempFileName );
+        let uploadPath = path.join( __dirname, '../uploads', folderName, tempFileName );
 
         console.log('upload path => ', uploadPath);
         const slashRegExp = new RegExp( '\\\\', 'g' );

@@ -7,12 +7,17 @@ const uploadFile = async( req, res ) => {
     if ( !req.files || !req.files?.file || Object.keys(req.files).length === 0 ) {
         return res.status(400).json( customErrorResponse('40001', 'BAD_REQUEST', 'No files were uploaded.') );
     }
+
+    try {
+        const fileName = await uploadFileHelper( req.files, undefined, 'imgs' );
+        return res.json({
+            message: `${ fileName } was uploaded successfully!`
+        });
+    } catch (error) {
+        const statusCode = error.code.slice( 0, 3 );
+        return res.status( statusCode ).json( error );
+    }
     
-    const fileName = await uploadFileHelper( req.files );
-    
-    return res.json({
-        message: `${ fileName } was uploaded successfully!`
-    });
 }
 
 module.exports = {
