@@ -2,6 +2,8 @@ const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const { imgExtsAllowed } = require('../src/api/routes/types/extensions');
 const { customErrorResponse } = require('../src/utils/error.util');
+const User = require('../src/api/models/user');
+const Product = require('../src/api/models/product');
 
 const uploadFileHelper = ( reqFiles,  fileExtsAllowedArr = imgExtsAllowed, folderName = '' ) => {
 
@@ -26,7 +28,7 @@ const uploadFileHelper = ( reqFiles,  fileExtsAllowedArr = imgExtsAllowed, folde
         // Set the path to store the file
         let uploadPath = path.join( __dirname, '../uploads', folderName, tempFileName );
 
-        console.log('upload path => ', uploadPath);
+        console.log('img path => ', uploadPath);
         const slashRegExp = new RegExp( '\\\\', 'g' );
 
         // Move the file to the path defined
@@ -46,9 +48,46 @@ const uploadFileHelper = ( reqFiles,  fileExtsAllowedArr = imgExtsAllowed, folde
             );
         });
     });
+}
 
+const getCollectionObject = async( collectionName, id ) => {
+
+    let object;
+
+    switch ( collectionName ) {
+        case 'users':
+            try {
+                object = await User.findById( id ).exec();
+
+                if ( !object ) {
+                    throw customErrorResponse('40001', 'BAD_REQUEST', 'User not found.');
+                }
+            } catch (error) {
+                console.log(error);
+                if( error?.code === '40001' ) throw error;
+                throw customErrorResponse('40000', 'BAD_REQUEST', 'User not found.')
+            }
+            break;
+        case 'products':
+            try {
+                object = await Product.findById( id ).exec();
+
+                if ( !object ) {
+                    throw customErrorResponse('40001', 'BAD_REQUEST', 'Product not found.');
+                }
+            } catch (error) {
+                if( error?.code === '40001' ) throw error;
+                throw customErrorResponse('40000', 'BAD_REQUEST', 'Product not found.');
+            }
+            break;
+        default:
+            throw customErrorResponse('50000', 'INTERNAL_SERVER_ERROR', `Something went wrong calling /uploads/${ collection }/${ id }.`);
+    }
+
+    return object
 }
 
 module.exports = {
-    uploadFileHelper
+    uploadFileHelper,
+    getCollectionObject
 }
