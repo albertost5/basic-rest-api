@@ -3,7 +3,7 @@ const { getBaseResponse } = require("../../../utils/response.util")
 const uploadServiceSend = ( fileName ) => {
     const baseResponse = getBaseResponse();
     baseResponse.contentType = 'application/json';
-    baseResponse.data.message = `${ fileName } was uploaded successfully!`;
+    baseResponse.data.link = `${ fileName }`;
 
     return baseResponse;
 }
