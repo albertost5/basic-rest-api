@@ -1,8 +1,12 @@
 const express = require('express');
 require('dotenv').config();
-var cors = require('cors');
-const dbConnection = require('../../../db/config');
+const cors = require('cors');
+const { createServer } = require('http');
 const fileUpload = require('express-fileupload');
+
+const dbConnection = require('../../../db/config');
+const { socketController } = require('../routes/controllers/socket.controller');
+
 
 class Server {
     
@@ -10,6 +14,8 @@ class Server {
         this.routes = routes;
         this.app = express();
         this.port = process.env.PORT || 3001;
+        this.server = createServer( this.app );
+        this.io = require('socket.io')(this.server);
         
         // Connection to DB
         this.dbConn();
@@ -19,6 +25,9 @@ class Server {
         
         // Initialize controllers
         this.initializeControllers();
+
+        // Sockets
+        this.sockets();
     }
 
     initializeControllers() {
@@ -47,9 +56,13 @@ class Server {
     }
 
     listen() {
-        this.app.listen( this.port, () => {
+        this.server.listen( this.port, () => {
             console.log(`Basic-rest-api listening on port ${ this.port }...`)
         });
+    }
+
+    sockets() {
+        this.io.on( 'connection', socketController ); 
     }
 
 }
