@@ -85,8 +85,25 @@ googleSignIn = async( req, res ) => {
         )
     }
 }
+
+renewJWT = async( req, res ) => {
+    const { user } = req;
+
+    try {
+        const token = await generateJWT( req.user.id );
+
+        return res.json({
+            user,
+            token
+        });
+
+    } catch (error) {
+        return res.status( 409 ).json( customErrorResponse('40900', 'CONFLICT', 'Something went wrong generating the token.') );  
+    }
+}
  
 module.exports = {
     login,
-    googleSignIn
+    googleSignIn,
+    renewJWT
 }

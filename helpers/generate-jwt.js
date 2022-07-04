@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
+const User = require('../src/api/models/user');
 
 const generateJWT = ( userId ) => {
 
@@ -17,6 +18,32 @@ const generateJWT = ( userId ) => {
     });
 }
 
+const checkJWT = async( token ) => {
+    try {
+        if ( token.length < 10 ) {
+            return null;
+        }
+
+        const { uid } = jwt.verify( token, process.env.SECRET )
+        
+        try {
+            const user = await User.findById( uid ).exec();
+            
+            if( user && user.status ) {
+                return user;
+            } else {
+                return null;
+            }
+
+        } catch (error) {
+            return null;
+        }
+    } catch (error) {
+        return null;
+    }
+}
+
 module.exports = {
-    generateJWT
+    generateJWT,
+    checkJWT
 };
