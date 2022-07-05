@@ -18,7 +18,7 @@ class Chat {
     }
 
     get lastMessages() {
-        this.messages = this.messages.splice( 0, 9 );
+        this.messages = this.messages.splice( 0, 10 );
         
         return this.messages;
     }
@@ -27,9 +27,9 @@ class Chat {
         return Object.values( this.users ); 
     }
 
-    sendMessage( uid, name, message ) {
+    sendMessage( receiverUid, senderName, message ) {
         this.messages.unshift(
-            new Message( uid, name, message )
+            new Message( receiverUid, senderName, message )
         );
     }
 

@@ -15,8 +15,8 @@ const socketController = async( socket = new Socket(), io ) => {
 
         // Add the connected user:
         chat.connectUser( user );
-
         io.emit( 'active-users', chat.activeUsersArr );
+        socket.emit( 'get-messages', chat.lastMessages );
 
         // Remove user on disconnect
         socket.on( 'disconnect', () => {
@@ -24,9 +24,16 @@ const socketController = async( socket = new Socket(), io ) => {
             io.emit( 'active-users', chat.activeUsersArr );
         });
 
+        // Send message @ all
+        socket.on( 'send-message' , ({ uid, message }) => {
+            chat.sendMessage( user.id, user.name, message );
+            io.emit( 'get-messages', chat.lastMessages );
+        });
+
 
     } catch (error) {
         console.warn('There was an error validating the token: ' + error);
+        return;
     }
 }
 
