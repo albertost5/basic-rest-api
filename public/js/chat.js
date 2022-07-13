@@ -72,8 +72,8 @@ const connectSocket = () => {
 
     socket.on( 'active-users', printUsers );
 
-    socket.on( 'private-message', () => {
-        // TO DO
+    socket.on( 'private-message', payload => {
+        console.log('mensaje privado: ' + payload);
     });
 }
 
@@ -124,6 +124,11 @@ txtMessage.addEventListener('keyup', ({ keyCode }) => {
     socket.emit( 'send-message',  { uid, message } );
     
     txtMessage.value = '';
+});
+
+btnLogOut.addEventListener('click', () => {
+    localStorage.clear();
+    window.location = 'index.html';
 });
 
 
